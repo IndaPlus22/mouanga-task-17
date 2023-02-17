@@ -3,6 +3,7 @@
 // (not that it matters because its not even in rust)
 
 use std::io;
+use std::io::prelude::*;
 //use std::env;
 //use std::fs;
 //const INPUT_MODE_FILE: bool = false;
@@ -20,11 +21,54 @@ fn main() {
     }
 */
 
-let mut input1 = String::new();
-let mut input2 = String::new();
+let mut input = String::new();
 let mut dictionary: Vec<String> = vec![];
+let mut misspelled: Vec<String> = vec![];
 
-let stdin1 = io::stdin();
+let stdin = io::stdin();
+// make the dictionary
+let mut lines = stdin
+        .lock()
+        .lines()
+        .map(|_line| _line.ok().unwrap());
+    // and get one line at a time,
+loop {
+    let next_line = lines.next().unwrap();
+    if next_line != "#" {
+        dictionary.push(next_line);
+    } else {
+        break;
+    }
+}
+
+// make the dictionary of misspelled words
+loop {
+    let next_line = lines.next().unwrap();
+    misspelled.push(next_line);
+}
+
+// now we just compare every felstavat ord to every word in the dictionary... this wont take O(inf) runtime at all lol
+for word in misspelled {
+    let mut suggestions: Vec<String> = vec![];
+    let mut best_distance: usize = 40;
+    for suggestion in dictionary {
+        let cmp_words = compare_words(word, suggestion);
+        if cmp_words < best_distance {
+            // reset the list; we found something better
+            best_distance = cmp_words;
+            suggestions = vec![];
+        }
+
+        if cmp_words == best_distance {
+            // add the word to the list of suggestions
+            suggestions.push(suggestion);
+        }
+    }
+    println!("{} ({}) {}", word, best_distance, strvec_to_str(suggestions))
+}
+
+
+/*let stdin1 = io::stdin();
 stdin1.read_line(&mut input1).expect("err");
 let stdin2 = io::stdin();
 stdin2.read_line(&mut input2).expect("err");
@@ -32,6 +76,7 @@ println!("{}", compare_words(
     String::from(input1.trim()), 
     String::from(input2.trim())
 ));
+*/
 
 }
 
@@ -97,4 +142,12 @@ for i in 1..(a_len + 1) {
 return matrix[a_len][b_len];
 
 
+}
+
+fn strvec_to_str(vec: Vec<String>) -> String {
+    let mut string = String::new();
+    for element in vec {
+        string.push_str(&element);
+    }
+    return string;
 }
