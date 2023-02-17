@@ -44,15 +44,20 @@ loop {
 // make the dictionary of misspelled words
 loop {
     let next_line = lines.next().unwrap();
+    // for testing purposes
+    if next_line != ":" {
     misspelled.push(next_line);
+    } else {
+        break;
+    }
 }
 
 // now we just compare every felstavat ord to every word in the dictionary... this wont take O(inf) runtime at all lol
-for word in misspelled {
+for word in &misspelled {
     let mut suggestions: Vec<String> = vec![];
     let mut best_distance: usize = 40;
-    for suggestion in dictionary {
-        let cmp_words = compare_words(word, suggestion);
+    for suggestion in &dictionary {
+        let cmp_words = compare_words(word.to_string(), suggestion.to_string());
         if cmp_words < best_distance {
             // reset the list; we found something better
             best_distance = cmp_words;
@@ -61,7 +66,7 @@ for word in misspelled {
 
         if cmp_words == best_distance {
             // add the word to the list of suggestions
-            suggestions.push(suggestion);
+            suggestions.push(suggestion.to_string());
         }
     }
     println!("{} ({}) {}", word, best_distance, strvec_to_str(suggestions))
